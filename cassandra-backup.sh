@@ -97,11 +97,11 @@ done
 
 find $_DATA_DIR -type d -name $_SNAPSHOT_NAME > snp_dir_list
 
-for SNP_VAR in `cat snp_dir_list`;
+for SNP_VAR in `cat snp_dir_list`
 do
 ## Triming _DATA_DIR
 _SNP_PATH_TRIM=`echo $SNP_VAR|awk '{gsub("'$_DATA_DIR'", "");print}'`
 
-cp -prvf "$SNP_VAR" "$_BACKUP_SNAPSHOT_DIR$_SNP_PATH_TRIM";
-
+#cp -prvf "$SNP_VAR" "$_BACKUP_SNAPSHOT_DIR$_SNP_PATH_TRIM";
+mv "$SNP_VAR" "$_BACKUP_SNAPSHOT_DIR$_SNP_PATH_TRIM";
 done
