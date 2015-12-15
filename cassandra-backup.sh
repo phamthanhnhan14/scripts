@@ -1,5 +1,5 @@
 #!/bin/bash
-#
+# Edit by Nhan Pham
 # Author: Sharad Kumar Chhetri
 # Date : 27-April-2015
 # Description : The backup script will complete the backup in 2 phases -
@@ -10,10 +10,14 @@
 ## In below given variables - require information to be feed by system admin##
 # For _NODETOOL , you can replace $(which nodetool) with  absolute path of nodetool command.
 #
-
-_BACKUP_DIR=/backup
-_DATA_DIR=/var/lib/cassandra/data
-_NODETOOL=$(which nodetool)
+_BACKUP_DIR=/data/backup
+_DATA_DIR=/data/cassandra-passport-profile/data
+_NODETOOL=/zserver/apache-cassandra-2.1.5/bin/nodetool
+_CQL=/zserver/apache-cassandra-2.1.5/bin/cqlsh
+#Custom informations
+_USERNAME=root
+_PASSWD=yourpassword
+_HOST=yourhostname
 
 ## Do not edit below given variable ##
 
@@ -45,8 +49,7 @@ fi
 ##################### SECTION 1 : SCHEMA BACKUP ############################################ 
 
 ## List All Keyspaces
-cqlsh -e "DESC KEYSPACES" |perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)//g' | sed '/^$/d' > Keyspace_name_schema.cql
-
+$_CQL $_HOST -u $_USERNAME -p $_PASSWD -e "DESC KEYSPACES" |perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)//g' | sed '/^$/d' > Keyspace_name_schema.cql
 #_KEYSPACE_NAME=$(cat Keyspace_name_schema.cql)
 
 ## Create directory inside backup SCHEMA directory. As per keyspace name.
@@ -63,7 +66,7 @@ done
 ## Take SCHEMA Backup - All Keyspace and All tables
 for VAR_KEYSPACE in $(cat Keyspace_name_schema.cql)
 do
-cqlsh -e "DESC KEYSPACE  $VAR_KEYSPACE" > "$_BACKUP_SCHEMA_DIR/$VAR_KEYSPACE/$VAR_KEYSPACE"_schema-"$_DATE_SCHEMA".cql 
+$_CQL $_HOST -u $_USERNAME -p $_PASSWD -e "DESC KEYSPACE  $VAR_KEYSPACE" > "$_BACKUP_SCHEMA_DIR/$VAR_KEYSPACE/$VAR_KEYSPACE"_schema-"$_DATE_SCHEMA".cql
 done
 
 
@@ -81,11 +84,11 @@ _SNAPSHOT_DIR_LIST=`find $_DATA_DIR -type d -name snapshots|awk '{gsub("'$_DATA_
 ## Create directory inside backup directory. As per keyspace name.
 for i in `cat snapshot_dir_list`
 do
-if [ -d $_BACKUP_SNAPSHOT_DIR/$i ]
+if [ -d $_BACKUP_SNAPSHOT_DIR$i ]
 then
 echo "$i directory exist"
 else
-mkdir -p $_BACKUP_SNAPSHOT_DIR/$i
+mkdir -p $_BACKUP_SNAPSHOT_DIR$i
 echo $i Directory is created
 fi
 done
